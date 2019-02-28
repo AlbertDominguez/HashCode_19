@@ -10,13 +10,13 @@ void read() {
     int N; cin >> N;
     slides.reserve(N);
     pictures = vector<Picture>(N);
-    for (int i = 0; i < N; ++i) {
+    for (uint i = 0; i < N; ++i) {
         pictures[i].id = i;
         char v; cin >> v;
         pictures[i].vertical = (v == 'V');
         int tagnum; cin >> tagnum;
         pictures[i].tags = vector<string>(tagnum);
-        for (int j = 0; j < tagnum; ++j) {
+        for (uint j = 0; j < tagnum; ++j) {
             string tag;
             cin >> tag;
             pictures[i].tags[j] = tag;
@@ -24,6 +24,40 @@ void read() {
         }
     }
 }
+
+
+Slide createSlide(Picture p1, Picture p2) {
+    Slide ans;
+    ans.ph1 = p1.id;
+    ans.ph2 = p2.id;
+    set_union(p1.tags.begin(), p1.tags.end(), 
+               p2.tags.begin(), p2.tags.end(), 
+               inserter(ans.tags, ans.tags.begin()));
+    return ans;
+}
+
+Slide createSlide(Picture p1) {
+    Slide ans;
+    ans.ph1 = p1.id;
+    ans.ph2 = -1;
+    copy(p1.tags.begin(), p1.tags.end(), inserter(ans.tags, ans.tags.end()));
+    return ans;
+}
+
+int score(Slide s1, Slide s2) {
+    set<string> common;
+    set_intersection(s1.tags.begin(), s1.tags.end(),
+                    s2.tags.begin(), s2.tags.end(),
+                    inserter(common, common.begin()));
+
+    int ctags = common.size();
+
+    int difs1 = s1.tags.size() - ctags;
+    int difs2 = s2.tags.size() - ctags;
+
+    return (min(ctags, min(difs1, difs2)));
+}
+
 
 vector<Slide> get_slides() {
     vector<Slide> ret;
