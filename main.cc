@@ -5,6 +5,7 @@ using namespace std;
 vector<Picture> pictures;
 vector<Slide> slides;
 
+
 void read() {
     int N; cin >> N;
     slides.reserve(N);
@@ -22,6 +23,42 @@ void read() {
             tagctrl[tag].insert(i);
         }
     }
+}
+
+vector<Slide> get_slides() {
+    vector<Slide> ret;
+    vector<Slide> verticals;
+    ret.reserve(pictures.size());
+    verticals.reserve(pictures.size());
+    for (Picture p : pictures) {
+        if (!p.vertical) {
+            ret.push_back(createSlide(p));
+        } else {
+            verticals.push_back(createSlide(p));
+        }
+    }
+    vector<bool> used_verts(verticals.size(), false);
+    for (int i = 0; i < verticals.size(); ++i) {
+        if (not used_verts[i]) {
+            used_verts[i] = true;
+            int min_score = -1;
+            int min_idx = -1;
+            for (int j = 0; j < used_verts.size(); ++j) {
+                if (not used_verts[j]) {
+                    int sc = score(verticals[i], verticals[j]);
+                    if (min_score == -1 or sc < min_score) {
+                        min_score = sc;
+                        min_idx = j;
+                    }
+                }
+            }
+            if (min_idx != -1) {
+                used_verts[min_idx] = true;
+                ret.push_back(createSlide(pictures[verticals[i].ph1], pictures[verticals[min_idx].ph1]));
+            }
+        }
+    }
+    return ret;
 }
 
 void output() {
