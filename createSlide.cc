@@ -5,7 +5,7 @@
 Slide createSlide(Picture p1, Picture p2) {
     Slide ans;
     ans.ph1 = p1.id;
-    ans.ph2 = p1.id;
+    ans.ph2 = p2.id;
     set_union(p1.tags.begin(), p1.tags.end(), 
                p2.tags.begin(), p2.tags.end(), 
                inserter(ans.tags, ans.tags.begin()));
