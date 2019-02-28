@@ -9,11 +9,16 @@
 
 using namespace std;
 
-using Slide = pair<int,int>;
 
 struct Picture {
     bool vertical;
     vector<string> tags;
+};
+
+struct Slide {
+    int ph1;
+    int ph2 = -1;
+    set<string> tags;
 };
 
 unordered_map<string,set<int>> tagctrl;
