@@ -1,5 +1,6 @@
 #include "structures.hh"
 #include <iostream>
+#include <cstdlib>
 using namespace std;
 
 vector<Picture> pictures;
@@ -10,13 +11,13 @@ void read() {
     int N; cin >> N;
     slides.reserve(N);
     pictures = vector<Picture>(N);
-    for (uint i = 0; i < N; ++i) {
+    for (int i = 0; i < N; ++i) {
         pictures[i].id = i;
         char v; cin >> v;
         pictures[i].vertical = (v == 'V');
         int tagnum; cin >> tagnum;
         pictures[i].tags = vector<string>(tagnum);
-        for (uint j = 0; j < tagnum; ++j) {
+        for (int j = 0; j < tagnum; ++j) {
             string tag;
             cin >> tag;
             pictures[i].tags[j] = tag;
@@ -26,7 +27,7 @@ void read() {
 }
 
 
-Slide createSlide(Picture p1, Picture p2) {
+Slide createSlide(const Picture& p1, const Picture& p2) {
     Slide ans;
     ans.ph1 = p1.id;
     ans.ph2 = p2.id;
@@ -36,7 +37,7 @@ Slide createSlide(Picture p1, Picture p2) {
     return ans;
 }
 
-Slide createSlide(Picture p1) {
+Slide createSlide(const Picture& p1) {
     Slide ans;
     ans.ph1 = p1.id;
     ans.ph2 = -1;
@@ -44,7 +45,7 @@ Slide createSlide(Picture p1) {
     return ans;
 }
 
-int score(Slide s1, Slide s2) {
+int score(const Slide& s1, const Slide& s2) {
     set<string> common;
     set_intersection(s1.tags.begin(), s1.tags.end(),
                     s2.tags.begin(), s2.tags.end(),
@@ -58,9 +59,11 @@ int score(Slide s1, Slide s2) {
     return (min(ctags, min(difs1, difs2)));
 }
 
+bool comp(Slide& s1, Slide& s2) {
+    return s1.tags.size() < s2.tags.size();
+}
 
 vector<Slide> get_slides() {
-    cout << "skere" << endl;
     vector<Slide> ret;
     vector<Slide> verticals;
     ret.reserve(pictures.size());
@@ -72,34 +75,18 @@ vector<Slide> get_slides() {
             verticals.push_back(createSlide(p));
         }
     }
-    vector<bool> used_verts(verticals.size(), false);
-    for (int i = 0; i < verticals.size(); ++i) {
-        cout << i << endl;
-        if (not used_verts[i]) {
-            used_verts[i] = true;
-            int min_score = -1;
-            int min_idx = -1;
-            cout << i << endl;
-            for (int j = 0; j < used_verts.size(); ++j) {
-                if (not used_verts[j]) {
-                    int sc = score(verticals[i], verticals[j]);
-                    if (min_score == -1 or sc < min_score) {
-                        min_score = sc;
-                        min_idx = j;
-                    }
-                }
-            }
-            if (min_idx != -1) {
-                used_verts[min_idx] = true;
-                ret.push_back(createSlide(pictures[verticals[i].ph1], pictures[verticals[min_idx].ph1]));
-            }
-        }
-    }
+    sort(verticals.begin(), verticals.end(), comp);
+    int i = 0; 
+    int j = verticals.size()-1;
+    while (i < j) {
+        ret.push_back(createSlide(pictures[verticals[i].ph1], pictures[verticals[j].ph1]));
+        ++i;
+        --j;
+    }    
     return ret;
 }
 
 vector<int> greedy(const vector<Slide>& poslides, int& totalscore){
-    cout << "aa" << endl;
     int n = poslides.size();
     vector<int> solution;
     solution.reserve(n);
@@ -109,17 +96,22 @@ vector<int> greedy(const vector<Slide>& poslides, int& totalscore){
     // Fill up solution until no slides left
     vector<bool> used (n, false);
     used[0] = true;
+    int it_max = 1000;
     for (int done = 0; done < n-1; ++done){
         int best = -1;
         int bestscore = -1;
         int tempscore;
         int previous = solution[done];
+        int j = 0;
+        cout << done << endl;
         // We compare with all other possible slides and keep the best
-        for (int i = 1; i < n; ++i){
+        for (int i = 1; j < it_max and i < n-1;++i){
             if (used[i]) continue;
+            ++j;
             tempscore = score(poslides[previous], poslides[i]);
             // If better we keep it
             if (bestscore < tempscore){
+
                 bestscore = tempscore;
                 best = i;
             }
@@ -133,12 +125,45 @@ vector<int> greedy(const vector<Slide>& poslides, int& totalscore){
     return solution;
 }
 
-void output(const vector<int>& sl, const vector<Slide>& o) {
-    cout << o.size() << endl;
-    for (int sd : sl) {
-        cout << o[sd].ph1;
-        if (o[sd].ph2 != -1) {
-            cout << ' ' << o[sd].ph2;
+
+int totalscore (const vector<Slide>& sol){
+    int n = sol.size();
+    int sum = 0;
+    for (int i = 0; i < n-1; ++i) sum += score(sol[i], sol[i+1]);
+    return sum;
+}
+
+void swapping (vector<int>& order, const vector<Slide>& solution, int& sc){
+    int it_max = 100000;
+    for (int i = 0; i < it_max; ++i){
+        int n = solution.size();
+        int swap1 = rand() % (n-2) + 1;
+        int swap2 = rand() % (n-2) + 1;
+        int swp1 = order[swap1];
+        int swp2 = order[swap2];
+        int scminus = score(solution[swp1], solution[swp1-1]) 
+                    + score(solution[swp1], solution[swp1+1])
+                    + score(solution[swp2], solution[swp2-1]) 
+                    + score(solution[swp2], solution[swp2+1]);
+        int scplus =  score(solution[swp2], solution[swp1-1]) 
+                    + score(solution[swp2], solution[swp1+1])
+                    + score(solution[swp1], solution[swp2-1]) 
+                    + score(solution[swp1], solution[swp2+1]);
+        if (scplus > scminus) {
+            swap(order[swap1], order[swap2]);
+            sc -= scminus;
+            sc += scplus;
+        } 
+    }
+
+}
+
+
+void output(const vector<Slide>& Slds, const vector<int>& order) {
+    for (int sd : order) {
+        cout << Slds[sd].ph1;
+        if (Slds[sd].ph2 != -1) {
+            cout << ' ' << Slds[sd].ph2;
         }
         cout << endl;
     }
@@ -169,8 +194,12 @@ int main () {
     slides.push_back(s2);*/
     vector<Slide> preprocessed_slides;
     preprocessed_slides = get_slides();
-    int score = 0;
-    vector<int> ordered_solution = greedy(preprocessed_slides, score);
-
-    output(ordered_solution,preprocessed_slides);
+    int temp = 0;
+    vector<int> order;
+    order = greedy(preprocessed_slides, temp);
+    int sc1 = totalscore(preprocessed_slides);
+    swapping(order, preprocessed_slides, sc1);
+    
+    output(preprocessed_slides, order);
+    cout << sc1 << endl;
 }
