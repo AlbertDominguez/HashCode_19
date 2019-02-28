@@ -60,6 +60,7 @@ int score(Slide s1, Slide s2) {
 
 
 vector<Slide> get_slides() {
+    cout << "skere" << endl;
     vector<Slide> ret;
     vector<Slide> verticals;
     ret.reserve(pictures.size());
@@ -73,10 +74,12 @@ vector<Slide> get_slides() {
     }
     vector<bool> used_verts(verticals.size(), false);
     for (int i = 0; i < verticals.size(); ++i) {
+        cout << i << endl;
         if (not used_verts[i]) {
             used_verts[i] = true;
             int min_score = -1;
             int min_idx = -1;
+            cout << i << endl;
             for (int j = 0; j < used_verts.size(); ++j) {
                 if (not used_verts[j]) {
                     int sc = score(verticals[i], verticals[j]);
@@ -95,12 +98,47 @@ vector<Slide> get_slides() {
     return ret;
 }
 
-void output() {
-    cout << slides.size() << endl;
-    for (Slide sd : slides) {
-        cout << sd.ph1;
-        if (sd.ph2 != -1) {
-            cout << ' ' << sd.ph2;
+vector<int> greedy(const vector<Slide>& poslides, int& totalscore){
+    cout << "aa" << endl;
+    int n = poslides.size();
+    vector<int> solution;
+    solution.reserve(n);
+
+    // First slide will be random a.k.a the first one
+    solution.push_back(0);
+    // Fill up solution until no slides left
+    vector<bool> used (n, false);
+    used[0] = true;
+    for (int done = 0; done < n-1; ++done){
+        int best = -1;
+        int bestscore = -1;
+        int tempscore;
+        int previous = solution[done];
+        // We compare with all other possible slides and keep the best
+        for (int i = 1; i < n; ++i){
+            if (used[i]) continue;
+            tempscore = score(poslides[previous], poslides[i]);
+            // If better we keep it
+            if (bestscore < tempscore){
+                bestscore = tempscore;
+                best = i;
+            }
+
+        }
+        solution.push_back(best);
+        used[best] = true;
+        totalscore += bestscore;
+    }
+
+    return solution;
+}
+
+void output(const vector<int>& sl, const vector<Slide>& o) {
+    cout << o.size() << endl;
+    for (int sd : sl) {
+        cout << o[sd].ph1;
+        if (o[sd].ph2 != -1) {
+            cout << ' ' << o[sd].ph2;
         }
         cout << endl;
     }
@@ -129,5 +167,10 @@ int main () {
     s2.ph1=2; s2.ph2=-1;
     slides.push_back(s1);
     slides.push_back(s2);*/
-    output();
+    vector<Slide> preprocessed_slides;
+    preprocessed_slides = get_slides();
+    int score = 0;
+    vector<int> ordered_solution = greedy(preprocessed_slides, score);
+
+    output(ordered_solution,preprocessed_slides);
 }
