@@ -1,6 +1,7 @@
 #ifndef Structures_hh
 #define Structures_hh
 
+#include <algorithm>
 #include <set>
 #include <string>
 #include <unordered_map>
@@ -10,10 +11,13 @@
 using namespace std;
 
 
+
 struct Picture {
+    int id;
     bool vertical;
     vector<string> tags;
 };
+
 
 struct Slide {
     int ph1;

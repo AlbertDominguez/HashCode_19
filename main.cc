@@ -8,6 +8,7 @@ void read() {
     int N; cin >> N;
     pictures = vector<Picture>(N);
     for (int i = 0; i < N; ++i) {
+        pictures[i].id = i;
         char v; cin >> v;
         pictures[i].vertical = (v == 'V');
         int tagnum; cin >> tagnum;
