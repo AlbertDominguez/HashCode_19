@@ -3,9 +3,11 @@
 using namespace std;
 
 vector<Picture> pictures;
+vector<Slide> slides;
 
 void read() {
     int N; cin >> N;
+    slides.reserve(N);
     pictures = vector<Picture>(N);
     for (int i = 0; i < N; ++i) {
         pictures[i].id = i;
@@ -19,6 +21,17 @@ void read() {
             pictures[i].tags[j] = tag;
             tagctrl[tag].insert(i);
         }
+    }
+}
+
+void output() {
+    cout << slides.size() << endl;
+    for (Slide sd : slides) {
+        cout << sd.ph1;
+        if (sd.ph2 != -1) {
+            cout << ' ' << sd.ph2;
+        }
+        cout << endl;
     }
 }
 
@@ -37,4 +50,13 @@ int main () {
         }
         cout << endl;
     }*/
+    // OUTPUT CHECK
+    /*set<string> temp;
+    Slide s1 = {};
+    s1.ph1=1; s1.ph2=3;
+    Slide s2 = {};
+    s2.ph1=2; s2.ph2=-1;
+    slides.push_back(s1);
+    slides.push_back(s2);*/
+    output();
 }
