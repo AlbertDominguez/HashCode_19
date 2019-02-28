@@ -13,18 +13,27 @@ void read() {
         int tagnum; cin >> tagnum;
         pictures[i].tags = vector<string>(tagnum);
         for (int j = 0; j < tagnum; ++j) {
-            cin >> pictures[i].tags[j];
+            string tag;
+            cin >> tag;
+            pictures[i].tags[j] = tag;
+            tagctrl[tag].insert(i);
         }
     }
 }
 
 int main () {
     read();
-	for (auto pic : pictures) {
-        cout << (pic.vertical ? "V " : "H ") << pic.tags.si
-        
-        ze();
+    // TEST CHECK
+	/*for (auto pic : pictures) {
+        cout << (pic.vertical ? "V " : "H ") << pic.tags.size();
         for (string s : pic.tags) cout << ' ' << s;
         cout << endl; 
     }
+    for (auto x : tagctrl) {
+        cout << x.first << ' ';
+        for (auto i : x.second) {
+            cout << i << ' ';
+        }
+        cout << endl;
+    }*/
 }
