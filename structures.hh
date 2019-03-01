@@ -25,8 +25,5 @@ struct Slide {
     set<string> tags;
 };
 
-unordered_map<string,set<int>> tagctrl;
-
-
 
 #endif
